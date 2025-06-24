@@ -14,6 +14,7 @@ import professorRoutes from './routes/professors.js';
 import moduleRoutes from './routes/modules.js';
 import submissionRoutes from './routes/submissions.js';
 import ipUsageRoutes from './routes/ipUsage.js';
+import clerkWebhookRoutes from './routes/clerk-webhooks.js';
 
 // Load environment variables
 dotenv.config();
@@ -66,6 +67,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Clerk webhook routes (before JSON parsing for raw body verification)
+app.use('/api', clerkWebhookRoutes);
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -83,8 +87,8 @@ app.use('/api/ip-usage', ipUsageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     database: 'connected'
   });
@@ -93,7 +97,7 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
@@ -111,4 +115,4 @@ app.listen(PORT, () => {
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:8080'}`);
 });
 
-export default app; 
+export default app;
